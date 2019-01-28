@@ -2,6 +2,25 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Guy Symonds</Authors>
+    <Company>RedSpartan Ltd</Company>
+    <Product>RedSpartan's Mvvm</Product>
+    <Description>This package is a simple Xamarin forms MVVM starter kit that includes:
+
+- INavigationService
+- Data Binding
+- IOC</Description>
+    <Copyright>RedSpartan Ltd 2019</Copyright>
+    <PackageTags>MVVM RedSpartan Xamarin</PackageTags>
+    <PackageReleaseNotes>Initial build of the package</PackageReleaseNotes>
+    <ApplicationIcon>favicon.ico</ApplicationIcon>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="4.8.1" />
+    <PackageReference Include="Xamarin.Forms" Version="3.4.0.1029999" />
+  </ItemGroup>
 
 </Project>
