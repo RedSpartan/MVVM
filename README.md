@@ -1,2 +1,6 @@
 # MVVM
-A Simple MVVM implementation for Xamarin, this was created to help me learn about Xamarin and to gain more in-depth knowledge of C#
+An MVVM implementation for Xamarin that includes
+•	ViewModel first Navigation
+•	View first Navigation 
+•	Multiple Views to ViewModels mappings
+•	Inversion of Control
