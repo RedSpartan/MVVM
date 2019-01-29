@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Xamarin.Forms;
 
 namespace RedSpartan.Mvvm.Services
 {
@@ -64,6 +66,27 @@ namespace RedSpartan.Mvvm.Services
             sb.Append(viewModelMapping.ViewType);
 
             throw new KeyNotFoundException(sb.ToString());
+        }
+
+        public ViewMapping GetMapping(Type viewModel, ViewType viewType = ViewType.Default)
+        {
+            var viewModelMapping = new ViewMapping(viewModel, null, viewType);
+            if (Mappings.Keys.Contains(viewModelMapping.GetHashCode()))
+            {
+                return Mappings[viewModelMapping.GetHashCode()];
+            }
+            var sb = new System.Text.StringBuilder("ViewModel [");
+            sb.Append(viewModelMapping.ViewModel);
+            sb.Append("] was not found for ViewType ");
+            sb.Append(viewModelMapping.ViewType);
+
+            throw new KeyNotFoundException(sb.ToString());
+        }
+
+        public Type GetDefaultViewModelType(Page page)
+        {
+            return Mappings
+                .FirstOrDefault(x => x.Value.View == page.GetType() && x.Value.ViewType == ViewType.Default).Value.ViewModel;
         }
         #endregion Methods
     }

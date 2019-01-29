@@ -21,8 +21,13 @@ namespace RedSpartan.Mvvm.Services
         /// The type of view
         /// </summary>
         public ViewType ViewType { get; protected set; }
+
+        /// <summary>
+        /// Define if the page is embedded in a navigation page
+        /// </summary>
+        public bool EmbedInNavigationPage { get; set; } = false;
         #endregion
-        
+
         #region Constructor
         /// <summary>
         /// A mapping of a ViewModel to a View

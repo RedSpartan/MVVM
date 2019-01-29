@@ -1,7 +1,6 @@
 ﻿using RedSpartan.Mvvm.Services;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace RedSpartan.Mvvm.Core
@@ -27,6 +26,8 @@ namespace RedSpartan.Mvvm.Core
 
         #region Service Properties
         public INavigationService NavigationService { get; }
+
+        public IList<Type> Children { get; } = new List<Type>();
         #endregion Service Properties
 
         #region Bindable Properties

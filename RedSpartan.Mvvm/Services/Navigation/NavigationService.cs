@@ -10,19 +10,15 @@ namespace RedSpartan.Mvvm.Services
 {
     public class NavigationService : INavigationService
     {
-        #region Public Properties
-        public NavigationPage CurrentMaster => MasterStack.Peek();
+        #region Properties
+        public Page CurrentMaster { get; private set; }
 
-        public Stack<NavigationPage> MasterStack { get; }
-        #endregion Public Properties
-
-        #region Protected Properties
         protected Application CurrentApplication => Application.Current;
 
         protected IViewModelViewMappings Mappings { get; }
 
         protected IIoC IoC { get; }
-        #endregion Protected Properties
+        #endregion Properties
 
         #region Constructors
         /// <summary>
@@ -34,7 +30,6 @@ namespace RedSpartan.Mvvm.Services
         {
             Mappings = mappings;
             IoC = ioC;
-            MasterStack = new Stack<NavigationPage>();
         }
         #endregion
 
@@ -43,92 +38,33 @@ namespace RedSpartan.Mvvm.Services
         /// <summary>
         /// Initialise the navigation service by navigating to first page
         /// </summary>
-        /// <typeparam name="TViewModel">Page to navigate to</typeparam>
+        /// <typeparam name="TViewModel">ViewModel to navigate to</typeparam>
         /// <returns></returns>
         public async Task InitialiseAsync<TViewModel>() where TViewModel : BaseViewModel
         {
-            await InitialiseAsync<NavigationPage, TViewModel>();
-        }
+            var page = CreateAndBindPage(typeof(TViewModel));
 
-        /// <summary>
-        /// Initialise the navigation service by navigating to first page
-        /// </summary>
-        /// <typeparam name="TMasterPage">Master Navigation Page</typeparam>
-        /// <typeparam name="TViewModel">Page to navigate to</typeparam>
-        /// <returns></returns>
-        public async Task InitialiseAsync<TMasterPage, TViewModel>()
-            where TMasterPage : NavigationPage
-            where TViewModel : BaseViewModel
-        {
-            await InitialiseMasterAsync(typeof(TMasterPage), typeof(TViewModel), null);
+            if (page.Implements<NavigationPage>())
+            {
+                CurrentMaster = page;
+            }
+            else if (page.Implements<TabbedPage>())
+            {
+                InitiliseTabbedChildrenAsync((TabbedPage)page);
+                CurrentMaster = page;
+            }
+            else
+            {
+                CurrentMaster = new NavigationPage(page);
+            }
+            
+            CurrentApplication.MainPage = CurrentMaster;
+
+            await InitilisePage(page, null);
         }
         #endregion Initialisation
 
-        #region MasterPage Navigation
-        /// <summary>
-        /// Pushes a new master page onto the Master stack
-        /// </summary>
-        /// <typeparam name="TMaster">Type of NavigationPage to display</typeparam>
-        /// <typeparam name="TViewModel">ViewModel to add to the Navigation Page</typeparam>
-        /// <returns>Asynchronous Task</returns>
-        public async Task PushMasterAsync<TMaster, TViewModel>()
-            where TMaster : NavigationPage
-            where TViewModel : BaseViewModel
-        {
-            await PushMasterAsync(typeof(TMaster), typeof(TViewModel), null);
-        }
-
-        /// <summary>
-        /// Pushes a new master page onto the Master stack
-        /// </summary>
-        /// <typeparam name="TMaster">Type of NavigationPage to display</typeparam>
-        /// <typeparam name="TViewModel">ViewModel to add to the Navigation Page</typeparam>
-        /// <param name="navigationData">Navigation data to pass to the page</param>
-        /// <returns>Asynchronous Task</returns>
-        public async Task PushMasterAsync<TMaster, TViewModel>(object navigationData)
-            where TMaster : NavigationPage
-            where TViewModel : BaseViewModel
-        {
-            await PushMasterAsync(typeof(TMaster), typeof(TViewModel), navigationData);
-        }
-
-        /// <summary>
-        /// Pushes a new master page onto the Master stack
-        /// </summary>
-        /// <param name="typeMaster">Type of NavigationPage to display</param>
-        /// <param name="viewModel">ViewModel to add to the Navigation Page</param>
-        /// <returns>Asynchronous Task</returns>
-        public async Task PushMasterAsync(Type typeMaster, Type viewModel)
-        {
-            await PushMasterAsync(typeMaster, viewModel, null);
-        }
-
-        /// <summary>
-        /// Pushes a new master page onto the Master stack
-        /// </summary>
-        /// <param name="typeMaster">Type of NavigationPage to display</param>
-        /// <param name="viewModel">ViewModel to add to the Navigation Page</param>
-        /// <param name="navigationData">Navigation data to pass to the page</param>
-        /// <returns>Asynchronous Task</returns>
-        public async Task PushMasterAsync(Type typeMaster, Type viewModel, object navigationData)
-        {
-            await InitialiseMasterAsync(typeMaster, viewModel, navigationData);
-        }
-
-        public async Task PopMasterAsync()
-        {
-            if (MasterStack.Count == 1)
-                throw new InvalidOperationException("Cannot pop the last Navigation Page");
-
-            await Task.Run(() =>
-            {
-                MasterStack.Pop();
-                CurrentApplication.MainPage = MasterStack.Peek();
-            });
-        }
-        #endregion MasterPage Navigation
-
-        #region Page Navigation
+        #region ViewModel Navigation
         /// <summary>
         /// Navigate to the page for the passed ViewModel
         /// </summary>
@@ -177,20 +113,25 @@ namespace RedSpartan.Mvvm.Services
         public async Task NavigateToAsync(Type viewModelType, object parameter, bool removePreviousPage = false, ViewType viewType = ViewType.Default)
         {
             Page page = CreateAndBindPage(viewModelType, parameter, viewType);
-
+            
             Page remove = null;
 
             if (removePreviousPage)
                 remove = GetLastPage();
 
-            await CurrentMaster.PushAsync(page);
+            if (CurrentMaster.Implements<NavigationPage>() == false)
+            { 
+                CurrentMaster = new NavigationPage(CurrentMaster);
+            }
+
+            await ((NavigationPage)CurrentMaster).PushAsync(page);
 
             if (removePreviousPage)
                 await RemovePageFromBackStackAsync(remove);
 
             await InitilisePage(page, parameter);
         }
-        #endregion Page Navigation
+        #endregion ViewModel Navigation
 
         #region Modal Navigation
         /// <summary>
@@ -229,6 +170,32 @@ namespace RedSpartan.Mvvm.Services
             await CurrentMaster.Navigation.PopModalAsync();
         }
         #endregion Modal Navigation
+        
+        #region Page Navigation
+        /// <summary>
+        /// Navigate to a page
+        /// </summary>
+        /// <param name="page">Page to find a ViewModel for</param>
+        /// <param name="removePreviousPage">Remove previous page from stack</param>
+        /// <returns>Asynchronous Task</returns>
+        public async Task NavigateToAsync(Page page, bool removePreviousPage = false)
+        {
+            await NavigateToAsync(page, null, removePreviousPage);
+        }
+
+        /// <summary>
+        /// Navigate to a page
+        /// </summary>
+        /// <param name="page">Page to find a ViewModel for</param>
+        /// <param name="parameter">ViewModel data for initialisation</param>
+        /// <param name="removePreviousPage">Remove previous page from stack</param>
+        /// <returns>Asynchronous Task</returns>
+        public async Task NavigateToAsync(Page page, object parameter, bool removePreviousPage = false)
+        {
+            BindViewModelToPage(page);
+            await InitilisePage(page, parameter);
+        }
+        #endregion Page Navigation
 
         /// <summary>
         /// Removes the whole stack from the current master page
@@ -248,30 +215,23 @@ namespace RedSpartan.Mvvm.Services
         /// <returns>Asynchronous Task</returns>
         public async Task RemoveLastFromBackStackAsync()
         {
-            await CurrentMaster.PopAsync();
+            if (CurrentMaster.Implements<NavigationPage>())
+                await ((NavigationPage)CurrentMaster).PopAsync();
         }
         #endregion INavigationService Implementation
 
         #region Private Methods
         /// <summary>
-        /// Creates a new NavigationPage adding a Page in the constructor with navigation data
+        /// Page initialisation passing parameters and adding bindings
         /// </summary>
-        /// <param name="typeMaster">NavigationPage to add</param>
-        /// <param name="initialPage">Child page to add to the master</param>
-        /// <param name="parameter">Parameters to add to child page</param>
+        /// <param name="page">Page to initialise</param>
+        /// <param name="parameter">Object Parameter</param>
         /// <returns>Asynchronous Task</returns>
-        private async Task InitialiseMasterAsync(Type typeMaster, Type initialPage, object parameter)
+        private async Task InitilisePage(Page page, object parameter)
         {
-            var page = CreateAndBindPage(initialPage);
+            page.SetBinding(Page.TitleProperty, "Title", BindingMode.OneWay);
 
-            if (!(Activator.CreateInstance(typeMaster, page) is NavigationPage navigationPage))
-                throw new InvalidOperationException($"Type {typeMaster.Name} is not a Navigation Page");
-
-            MasterStack.Push(navigationPage);
-
-            CurrentApplication.MainPage = MasterStack.Peek();
-
-            await InitilisePage(page, parameter);
+            await (page.BindingContext as BaseViewModel).InitialiseAsync(parameter);
         }
 
         /// <summary>
@@ -330,6 +290,12 @@ namespace RedSpartan.Mvvm.Services
             throw new KeyNotFoundException($"No map for {viewModelType} was found on navigation mappings");
         }
 
+        private BaseViewModel BindViewModelToPage(Page page)
+        {
+            var type = Mappings.GetDefaultViewModelType(page) ?? GetViewModelTypeForPage(page.GetType());
+            return (BaseViewModel)IoC.Build(type);
+        }
+
         /// <summary>
         /// Removes a page from the page stack
         /// </summary>
@@ -344,19 +310,6 @@ namespace RedSpartan.Mvvm.Services
         }
 
         /// <summary>
-        /// Page initialisation passing parameters and adding bindings
-        /// </summary>
-        /// <param name="page">Page to initialise</param>
-        /// <param name="parameter">Object Parameter</param>
-        /// <returns>Asynchronous Task</returns>
-        private async Task InitilisePage(Page page, object parameter)
-        {
-            page.SetBinding(Page.TitleProperty, "Title", BindingMode.OneWay);
-            
-            await (page.BindingContext as BaseViewModel).InitialiseAsync(parameter);
-        }
-
-        /// <summary>
         /// Looks for a Page in the namespace of the ViewModel with the same name
         /// </summary>
         /// <param name="viewModelType">ViewModel to find a Page for</param>
@@ -368,6 +321,15 @@ namespace RedSpartan.Mvvm.Services
             var viewModelAssemblyName = viewModelType.GetTypeInfo().Assembly.FullName;
             var viewAssemblyName = string.Format(CultureInfo.InvariantCulture, "{0}, {1}", viewName, viewModelAssemblyName);
             return Type.GetType(viewAssemblyName);
+        }
+
+        private static Type GetViewModelTypeForPage(Type pageType)
+        {
+            //TODO: Looks ugly and needs to be cleaned up
+            var pageName = pageType.FullName.Replace(".View", ".ViewModel").Replace("Page", "ViewModel");
+            var pageAssemblyName = pageType.GetTypeInfo().Assembly.FullName;
+            var viewModelAssemblyName = string.Format(CultureInfo.InvariantCulture, "{0}, {1}", pageName, pageAssemblyName);
+            return Type.GetType(viewModelAssemblyName);
         }
 
         /// <summary>
@@ -391,6 +353,28 @@ namespace RedSpartan.Mvvm.Services
         {
             var i = CurrentMaster.Navigation.NavigationStack.Count - 1;
             return CurrentMaster.Navigation.NavigationStack[i];
+        }
+
+        /// <summary>
+        /// Implements and Initialises ViewModels and their pages from a TabbedPage
+        /// </summary>
+        /// <param name="page">TabbedPage</param>
+        private async void InitiliseTabbedChildrenAsync(TabbedPage page)
+        {
+            //TODO: running initialise and awaiting is slow and needs refactoring
+            if (page.BindingContext is BaseViewModel model && model.Children.Count > 0)
+            {
+                foreach (var childType in model.Children)
+                {
+                    var child = CreateAndBindPage(childType);
+                    await InitilisePage(child, null);
+
+                    if (child.Implements<TabbedPage>())
+                        InitiliseTabbedChildrenAsync((TabbedPage)child);
+
+                    page.Children.Add(child);
+                }
+            }
         }
         #endregion Private Methods
     }

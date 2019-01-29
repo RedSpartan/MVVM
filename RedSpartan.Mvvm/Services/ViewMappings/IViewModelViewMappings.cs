@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Xamarin.Forms;
 
 namespace RedSpartan.Mvvm.Services
 {
@@ -10,5 +11,7 @@ namespace RedSpartan.Mvvm.Services
         void AddMapping(IEnumerable<ViewMapping> mappings);
         bool ContainsKey(Type viewModel, ViewType viewType = ViewType.Default);
         Type GetViewType(Type viewModel, ViewType viewType = ViewType.Default);
+        ViewMapping GetMapping(Type viewModel, ViewType viewType = ViewType.Default);
+        Type GetDefaultViewModelType(Page page);
     }
 }
