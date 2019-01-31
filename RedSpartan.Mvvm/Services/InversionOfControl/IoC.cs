@@ -7,34 +7,19 @@ using System.Threading.Tasks;
 
 namespace RedSpartan.Mvvm.Services
 {
-    public class IoC : IIoC
+    public sealed class IoC : IIoC
     {
         #region Fields
         private IContainer _container;
         #endregion Fields
 
         #region Singleton
-        private static readonly object _lock = new object();
-        private static IoC _current;
-        public static IoC Current
-        {
-            get
-            {
-                if (_current == null)
-                    lock (_lock)
-                        if (_current == null)
-                            _current = new IoC();
-
-                return _current;
-            }
-        }
+        private static readonly Lazy<IoC> _lazy = new Lazy<IoC>(() => new IoC());
+        public static IoC Instance => _lazy.Value;
         #endregion Singleton
 
         #region Constructor
-        protected IoC()
-        {
-            
-        }
+        private IoC() { }
         #endregion Constructor
 
         #region IIoC Methods

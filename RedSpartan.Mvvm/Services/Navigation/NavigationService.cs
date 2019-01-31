@@ -72,9 +72,9 @@ namespace RedSpartan.Mvvm.Services
         /// <param name="removePreviousPage">Remove previous page after pushing new one</param>
         /// <param name="viewType">Type of page to find</param>
         /// <returns>Asynchronous Task</returns>
-        public async Task NavigateToAsync<TViewModel>(bool removePreviousPage = false, ViewType viewType = ViewType.Default) where TViewModel : BaseViewModel
+        public async Task NavigateToAsync<TViewModel>(ViewType viewType = ViewType.Default, bool removePreviousPage = false) where TViewModel : BaseViewModel
         {
-            await NavigateToAsync(typeof(TViewModel), null, removePreviousPage, viewType);
+            await NavigateToAsync(typeof(TViewModel), null, viewType, removePreviousPage);
         }
 
         /// <summary>
@@ -85,9 +85,9 @@ namespace RedSpartan.Mvvm.Services
         /// <param name="removePreviousPage">Remove previous page after pushing new one</param>
         /// <param name="viewType">Type of page to find</param>
         /// <returns></returns>
-        public async Task NavigateToAsync<TViewModel>(object parameter, bool removePreviousPage = false, ViewType viewType = ViewType.Default) where TViewModel : BaseViewModel
+        public async Task NavigateToAsync<TViewModel>(object parameter, ViewType viewType = ViewType.Default, bool removePreviousPage = false) where TViewModel : BaseViewModel
         {
-            await NavigateToAsync(typeof(TViewModel), parameter, removePreviousPage, viewType);
+            await NavigateToAsync(typeof(TViewModel), parameter, viewType, removePreviousPage);
         }
 
         /// <summary>
@@ -97,9 +97,9 @@ namespace RedSpartan.Mvvm.Services
         /// <param name="removePreviousPage">Remove previous page after pushing new one</param>
         /// <param name="viewType">Type of page to find</param>
         /// <returns></returns>
-        public async Task NavigateToAsync(Type viewModelType, bool removePreviousPage = false, ViewType viewType = ViewType.Default)
+        public async Task NavigateToAsync(Type viewModelType, ViewType viewType, bool removePreviousPage = false)
         {
-            await NavigateToAsync(viewModelType, null, removePreviousPage, viewType);
+            await NavigateToAsync(viewModelType, null, viewType, removePreviousPage);
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace RedSpartan.Mvvm.Services
         /// <param name="removePreviousPage">Remove previous page after pushing new one</param>
         /// <param name="viewType">Type of page to find</param>
         /// <returns></returns>
-        public async Task NavigateToAsync(Type viewModelType, object parameter, bool removePreviousPage = false, ViewType viewType = ViewType.Default)
+        public async Task NavigateToAsync(Type viewModelType, object parameter, ViewType viewType, bool removePreviousPage = false)
         {
             Page page = CreateAndBindPage(viewModelType, parameter, viewType);
             
@@ -170,29 +170,51 @@ namespace RedSpartan.Mvvm.Services
             await CurrentMaster.Navigation.PopModalAsync();
         }
         #endregion Modal Navigation
-        
+
+        #region Default Navigation
+        public async Task NavigateToAsync(Type type, bool removePreviousPage = false)
+        {
+            await NavigateToAsync(type, null, removePreviousPage);
+        }
+
+        public async Task NavigateToAsync(Type type, object parameter, bool removePreviousPage = false)
+        {
+            if(type.Implements<BaseViewModel>())
+            {
+                await NavigateToAsync(type, parameter, ViewType.Default, removePreviousPage);
+            }
+            else if (type.Implements<Page>())
+            {
+
+            }
+
+            throw new InvalidOperationException($"Unknown navigation type {type.Name}");
+        }
+        #endregion Default Navigation
+
         #region Page Navigation
         /// <summary>
-        /// Navigate to a page
+        /// Bind a page to it's ViewModel
         /// </summary>
         /// <param name="page">Page to find a ViewModel for</param>
         /// <param name="removePreviousPage">Remove previous page from stack</param>
         /// <returns>Asynchronous Task</returns>
-        public async Task NavigateToAsync(Page page, bool removePreviousPage = false)
+        public async Task BindViewModelToPage(Page page)
         {
-            await NavigateToAsync(page, null, removePreviousPage);
+            await BindViewModelToPage(page, null);
         }
 
         /// <summary>
-        /// Navigate to a page
+        /// Bind a page to it's ViewModel
         /// </summary>
         /// <param name="page">Page to find a ViewModel for</param>
         /// <param name="parameter">ViewModel data for initialisation</param>
         /// <param name="removePreviousPage">Remove previous page from stack</param>
         /// <returns>Asynchronous Task</returns>
-        public async Task NavigateToAsync(Page page, object parameter, bool removePreviousPage = false)
+        public async Task BindViewModelToPage(Page page, object parameter)
         {
-            BindViewModelToPage(page);
+            var type = Mappings.GetDefaultViewModelType(page) ?? GetViewModelTypeForPage(page.GetType());
+            page.BindingContext = (BaseViewModel)IoC.Build(type);
             await InitilisePage(page, parameter);
         }
         #endregion Page Navigation
@@ -288,12 +310,6 @@ namespace RedSpartan.Mvvm.Services
             }
 
             throw new KeyNotFoundException($"No map for {viewModelType} was found on navigation mappings");
-        }
-
-        private BaseViewModel BindViewModelToPage(Page page)
-        {
-            var type = Mappings.GetDefaultViewModelType(page) ?? GetViewModelTypeForPage(page.GetType());
-            return (BaseViewModel)IoC.Build(type);
         }
 
         /// <summary>

@@ -41,6 +41,11 @@ namespace RedSpartan.Mvvm.Services
                 .RegisterType<ViewModelViewMappings>()
                 .As<IViewModelViewMappings>()
                 .SingleInstance();
+
+            Register
+                .RegisterType<ViewModelLocator>()
+                .As<IViewModelLocator>()
+                .SingleInstance();
         }
 
         internal void RegisterIoC(IIoC ioC)
