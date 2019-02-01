@@ -8,7 +8,7 @@ namespace RedSpartan.Mvvm.Tests.Services
     public class NavigationServiceTests
     {
         [Fact]
-        public void ViewMapping_AreEqualTest()
+        public void InitialiseAsync()
         {
             Assert.Equal(1,1);
         }

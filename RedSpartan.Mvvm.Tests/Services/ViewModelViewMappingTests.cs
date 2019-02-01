@@ -1,24 +1,12 @@
 using RedSpartan.Mvvm.Services;
 using System;
 using System.Collections.Generic;
-using Xamarin.Forms;
 using Xunit;
 
 namespace RedSpartan.Mvvm.Tests
 {
     public class ViewModelViewMappingTests
     {
-        class TestViewModel1 : Core.BaseViewModel { }
-        class TestViewModel2 : Core.BaseViewModel { }
-        class TestPage1 : Page { }
-        class TestPage2 : Page { }
-        class TestInitiliser : Initiliser
-        {
-            protected override void RegisterServices() { }
-
-            protected override void RegisterViewModelMappings() { }
-        }
-
         [Fact]
         public void ViewMapping_AreEqualTest()
         {
