@@ -20,14 +20,21 @@ namespace RedSpartan.Mvvm.Services
         {
             RegisterServicesToContainerBuilder();
             RegisterServices();
-            RegisterViewModels();
             RegisterViewModelMappings();
+            RegisterMappingsToIoC();
+        }
+
+        private void RegisterMappingsToIoC()
+        {
+            foreach (var mapping in Mappings)
+            {
+                Register.RegisterType(mapping.ViewModel);
+                Register.RegisterType(mapping.View);
+            }
         }
 
         protected abstract void RegisterServices();
-
-        protected abstract void RegisterViewModels();
-
+        
         protected abstract void RegisterViewModelMappings();
 
         protected virtual void RegisterServicesToContainerBuilder()
@@ -35,6 +42,11 @@ namespace RedSpartan.Mvvm.Services
             Register
                 .RegisterType<NavigationService>()
                 .As<INavigationService>()
+                .SingleInstance();
+
+            Register
+                .RegisterType<PageFactory>()
+                .As<IPageFactory>()
                 .SingleInstance();
 
             Register

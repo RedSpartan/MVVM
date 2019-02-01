@@ -21,11 +21,6 @@ namespace RedSpartan.Mvvm.Services
         /// The type of view
         /// </summary>
         public ViewType ViewType { get; protected set; }
-
-        /// <summary>
-        /// Define if the page is embedded in a navigation page
-        /// </summary>
-        public bool EmbedInNavigationPage { get; set; } = false;
         #endregion
 
         #region Constructor
@@ -35,14 +30,12 @@ namespace RedSpartan.Mvvm.Services
         /// <param name="viewModel">Type of ViewModel to map from</param>
         /// <param name="view">Type of View to Map to</param>
         /// <param name="viewType">The type of mapping to be used</param>
-        internal ViewMapping(Type viewModel, Type view, ViewType viewType = ViewType.Default)
+        internal ViewMapping(Type viewModel, Type view, ViewType viewType = ViewType.Display)
         {
             ViewModel = viewModel;
             View = view;
             ViewType = viewType;
         }
-
-        private ViewMapping() { }
         #endregion
 
         #region Equality Override
@@ -84,7 +77,7 @@ namespace RedSpartan.Mvvm.Services
         /// <param name="viewModel">Type of ViewModel to map from</param>
         /// <param name="view">Type of View to Map to</param>
         /// <param name="viewType">The type of mapping to be used</param>
-        public ViewMapping(ViewType viewType = ViewType.Default) :
+        public ViewMapping(ViewType viewType = ViewType.Display) :
             base(typeof(TViewModel), typeof(TView), viewType)
         { }
         #endregion

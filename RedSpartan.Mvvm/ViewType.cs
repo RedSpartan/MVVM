@@ -2,7 +2,7 @@
 {
     public enum ViewType : byte
     {
-        Default,
+        Display,
         Edit
     }
 }

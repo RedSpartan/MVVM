@@ -2,7 +2,6 @@
 using RedSpartan.Mvvm.Services;
 using System;
 using System.Threading.Tasks;
-using Xamarin.Forms;
 
 namespace RedSpartan.Mvvm
 {
@@ -16,11 +15,11 @@ namespace RedSpartan.Mvvm
         /// <typeparam name="TInitiliser">Initialisation class</typeparam>
         /// <typeparam name="TViewModel">ViewModel to start with</typeparam>
         /// <returns>Asynchronous Task</returns>
-        public static async Task InitiliseAsync<TInitiliser, TViewModel>() 
+        public static async Task InitiliseAsync<TInitiliser, TViewModel>(bool includeNavigationPage = true) 
             where TInitiliser : Initiliser 
             where TViewModel : BaseViewModel
         {
-            await InitiliseAsync<TInitiliser, TViewModel>(Services.IoC.Instance);
+            await InitiliseAsync<TInitiliser, TViewModel>(Services.IoC.Instance, includeNavigationPage);
         }
 
         /// <summary>
@@ -30,12 +29,12 @@ namespace RedSpartan.Mvvm
         /// <typeparam name="TViewModel">ViewModel to start with</typeparam>
         /// <param name="ioC">Inversion of Control implementation to use</param>
         /// <returns>Asynchronous Task</returns>
-        public static async Task InitiliseAsync<TInitiliser, TViewModel>(IIoC ioC) 
+        public static async Task InitiliseAsync<TInitiliser, TViewModel>(IIoC ioC, bool includeNavigationPage = true) 
             where TInitiliser : Initiliser 
             where TViewModel : BaseViewModel
         {
-            await InitiliseAsync<TInitiliser>(ioC);
-            await InitiliseNavigation<TViewModel>();
+            await InitiliseAsync<TInitiliser>(ioC, includeNavigationPage);
+            await InitiliseNavigation<TViewModel>(includeNavigationPage);
         }
 
         /// <summary>
@@ -43,10 +42,10 @@ namespace RedSpartan.Mvvm
         /// </summary>
         /// <typeparam name="TInitiliser">Initialisation class</typeparam>
         /// <returns>Asynchronous Task</returns>
-        public static async Task InitiliseAsync<TInitiliser>()
+        public static async Task InitiliseAsync<TInitiliser>(bool includeNavigationPage = true)
             where TInitiliser : Initiliser
         {
-            await InitiliseAsync<TInitiliser>(Services.IoC.Instance);
+            await InitiliseAsync<TInitiliser>(Services.IoC.Instance, includeNavigationPage);
         }
 
         /// <summary>
@@ -55,17 +54,17 @@ namespace RedSpartan.Mvvm
         /// <typeparam name="TInitiliser">Initialisation class</typeparam>
         /// <param name="ioC">Inversion of Control implementation to use</param>
         /// <returns>Asynchronous Task</returns>
-        public static async Task InitiliseAsync<TInitiliser>(IIoC ioC)
+        public static async Task InitiliseAsync<TInitiliser>(IIoC ioC, bool includeNavigationPage = true)
             where TInitiliser : Initiliser
         {
             IoC = ioC;
             IoC.Register(Activator.CreateInstance<TInitiliser>());
         }
 
-        private static async Task InitiliseNavigation<TViewModel>()
+        private static async Task InitiliseNavigation<TViewModel>(bool includeNavigationPage = true)
             where TViewModel : BaseViewModel
         {
-            await IoC.Build<INavigationService>().InitialiseAsync<TViewModel>();
+            await IoC.Build<INavigationService>().InitialiseAsync<TViewModel>(includeNavigationPage);
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using RedSpartan.Mvvm.Services;
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using Xamarin.Forms;
 
 namespace RedSpartan.Mvvm.Core
 {
@@ -9,7 +8,7 @@ namespace RedSpartan.Mvvm.Core
     {
         #region Fields
         private bool _isBusy = false;
-        private string _title = string.Empty;
+        private string _title;
         private bool _isNotBusy = true;
         private string _footer = string.Empty;
         private string _header = string.Empty;
@@ -17,17 +16,14 @@ namespace RedSpartan.Mvvm.Core
         #endregion Fields
 
         #region Constructors
-        public BaseViewModel(INavigationService navigationService)
+        public BaseViewModel()
         {
-            NavigationService = navigationService;
             _title = GetTitle();
         }
         #endregion Constructors
 
         #region Service Properties
-        public INavigationService NavigationService { get; }
-
-        public IList<Type> Children { get; } = new List<Type>();
+        public INavigationService NavigationService { get; } = IoC.Instance.Build<INavigationService>();
         #endregion Service Properties
 
         #region Bindable Properties
@@ -90,12 +86,15 @@ namespace RedSpartan.Mvvm.Core
         }
         #endregion Bindable Properties
 
-        #region Command Properties
-
-        #endregion Command Properties
+        #region Properties
+        public Page CurrentPage { get; set; }
+        #endregion Properties
 
         #region Methods
-        public abstract Task InitialiseAsync(object navigationData);
+        public virtual async Task InitialiseAsync(object navigationData)
+        {
+            await Task.FromResult(false);
+        }
         
         public virtual string GetTitle()
         {

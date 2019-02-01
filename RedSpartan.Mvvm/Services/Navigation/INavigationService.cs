@@ -1,43 +1,38 @@
 ﻿using RedSpartan.Mvvm.Core;
 using System;
 using System.Threading.Tasks;
-using Xamarin.Forms;
 
 namespace RedSpartan.Mvvm.Services
 {
     public interface INavigationService
     {
-        #region Properties
-        Page CurrentMaster { get; }
-        #endregion Properties
-
         #region Initialisation
-        Task InitialiseAsync<TViewModel>()
+        Task InitialiseAsync<TViewModel>(bool includeNavigationPage = true)
             where TViewModel : BaseViewModel;
         #endregion Initialisation
 
         #region ViewModel Navigation
-        Task NavigateToAsync<TViewModel>(ViewType viewType = ViewType.Default, bool removePreviousPage = false) 
+        Task NavigateToAsync<TViewModel>(BaseViewModel from, ViewType viewType = ViewType.Display, bool removePreviousPage = false) 
             where TViewModel : BaseViewModel;
 
-        Task NavigateToAsync<TViewModel>(object parameter, ViewType viewType = ViewType.Default, bool removePreviousPage = false) 
+        Task NavigateToAsync<TViewModel>(BaseViewModel from, object parameter, ViewType viewType = ViewType.Display, bool removePreviousPage = false) 
             where TViewModel : BaseViewModel;
 
-        Task NavigateToAsync(Type viewModelType, ViewType viewType, bool removePreviousPage = false);
+        Task NavigateToAsync(BaseViewModel from, Type viewModelType, ViewType viewType = ViewType.Display, bool removePreviousPage = false);
 
-        Task NavigateToAsync(Type viewModelType, object parameter, ViewType viewType, bool removePreviousPage = false);
+        Task NavigateToAsync(BaseViewModel from, Type viewModelType, object parameter, ViewType viewType = ViewType.Display, bool removePreviousPage = false);
         #endregion ViewModel Navigation
 
         #region Modal Navigation
-        Task PushModalAsync<TViewModel>(ViewType viewType = ViewType.Default) where TViewModel : BaseViewModel;
+        Task PushModalAsync<TViewModel>(ViewType viewType = ViewType.Display) where TViewModel : BaseViewModel;
 
-        Task PushModalAsync<TViewModel>(object parameter, ViewType viewType = ViewType.Default) where TViewModel : BaseViewModel;
+        Task PushModalAsync<TViewModel>(object parameter, ViewType viewType = ViewType.Display) where TViewModel : BaseViewModel;
 
         Task PopModalAsync();
         #endregion Modal Navigation
         
-        Task RemoveBackStackAsync();
+        Task RemoveBackStackAsync(BaseViewModel from);
 
-        Task RemoveLastFromBackStackAsync();
+        Task RemoveLastFromBackStackAsync(BaseViewModel from);
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RedSpartan.Mvvm.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xamarin.Forms;
@@ -47,12 +48,24 @@ namespace RedSpartan.Mvvm.Services
                 AddMapping(mapping);
         }
 
-        public bool ContainsKey(Type viewModel, ViewType viewType = ViewType.Default)
+        public bool ContainsKey<TViewModel>(ViewType viewType = ViewType.Display)
+            where TViewModel : BaseViewModel
+        {
+            return ContainsKey(typeof(TViewModel), viewType);
+        }
+
+        public bool ContainsKey(Type viewModel, ViewType viewType = ViewType.Display)
         {
             return Mappings.Keys.Contains(new ViewMapping(viewModel, null, viewType).GetHashCode());
         }
 
-        public Type GetViewType(Type viewModel, ViewType viewType = ViewType.Default)
+        public Type GetViewType<TViewModel>(ViewType viewType = ViewType.Display)
+            where TViewModel : BaseViewModel
+        {
+            return GetViewType(typeof(TViewModel), viewType);
+        }
+
+        public Type GetViewType(Type viewModel, ViewType viewType = ViewType.Display)
         {
             var viewModelMapping = new ViewMapping(viewModel, null, viewType);
             if (Mappings.Keys.Contains(viewModelMapping.GetHashCode()))
@@ -68,7 +81,22 @@ namespace RedSpartan.Mvvm.Services
             throw new KeyNotFoundException(sb.ToString());
         }
 
-        public ViewMapping GetMapping(Type viewModel, ViewType viewType = ViewType.Default)
+        public ViewMapping GetMapping<TViewModel>(ViewType viewType = ViewType.Display)
+            where TViewModel : BaseViewModel
+        {
+            return GetMapping(typeof(TViewModel), viewType);
+        }
+
+        public Type GetDefaultViewModelType(Page page)
+        {
+            return Mappings
+                .FirstOrDefault(x => x.Value.View == page.GetType() && x.Value.ViewType == ViewType.Display).Value.ViewModel;
+        }
+        #endregion Methods
+
+        #region Private Methods
+
+        private ViewMapping GetMapping(Type viewModel, ViewType viewType = ViewType.Display)
         {
             var viewModelMapping = new ViewMapping(viewModel, null, viewType);
             if (Mappings.Keys.Contains(viewModelMapping.GetHashCode()))
@@ -82,12 +110,6 @@ namespace RedSpartan.Mvvm.Services
 
             throw new KeyNotFoundException(sb.ToString());
         }
-
-        public Type GetDefaultViewModelType(Page page)
-        {
-            return Mappings
-                .FirstOrDefault(x => x.Value.View == page.GetType() && x.Value.ViewType == ViewType.Default).Value.ViewModel;
-        }
-        #endregion Methods
+        #endregion
     }
 }
