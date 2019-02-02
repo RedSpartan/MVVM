@@ -25,8 +25,6 @@ namespace RedSpartan.Mvvm.Tests.Services
             _ioc.Setup(ioc => ioc.Build(typeof(TestViewModel2))).Returns(new TestViewModel2());
             _ioc.Setup(ioc => ioc.Build<TestPage2>()).Returns(new TestPage2());
             _ioc.Setup(ioc => ioc.Build<TestViewModel2>()).Returns(new TestViewModel2());
-            _ioc.Setup(ioc => ioc.Build(typeof(TestViewModel3))).Returns(new TestViewModel3());
-            _ioc.Setup(ioc => ioc.Build<TestViewModel3>()).Returns(new TestViewModel3());
 
             _mappings = new Mock<IViewModelViewMappings>();
             _mappings.Setup(m => m.ContainsKey(typeof(TestViewModel1), ViewType.Display)).Returns(true);
@@ -114,7 +112,7 @@ namespace RedSpartan.Mvvm.Tests.Services
         public void GetPageTypeForViewModel_ReturnsTypeWithoutMapping()
         {
             var factory = new PageFactory(_ioc.Object, _mappings.Object);
-            Assert.Throws<KeyNotFoundException>(() => factory.GetPageTypeForViewModel(typeof(TestViewModelNoPage), ViewType.Display));
+            factory.GetPageTypeForViewModel(typeof(TestViewModel2), ViewType.Display);
         }
     }
 }
