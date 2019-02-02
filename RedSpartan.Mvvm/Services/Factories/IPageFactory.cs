@@ -7,10 +7,6 @@ namespace RedSpartan.Mvvm.Services
 {
     public interface IPageFactory
     {
-        IIoC IoC { get; }
-
-        IViewModelViewMappings Mappings { get; }
-
         Task InitilisePage(Page page, object parameter);
 
         Page CreateAndBindPage<TViewModel>(ViewType viewType = ViewType.Display)

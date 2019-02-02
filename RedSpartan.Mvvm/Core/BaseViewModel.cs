@@ -16,14 +16,15 @@ namespace RedSpartan.Mvvm.Core
         #endregion Fields
 
         #region Constructors
-        public BaseViewModel()
+        public BaseViewModel(INavigationService navigationService)
         {
             _title = GetTitle();
+            NavigationService = navigationService;
         }
         #endregion Constructors
 
         #region Service Properties
-        public INavigationService NavigationService { get; } = IoC.Instance.Build<INavigationService>();
+        public INavigationService NavigationService { get; }
         #endregion Service Properties
 
         #region Bindable Properties
