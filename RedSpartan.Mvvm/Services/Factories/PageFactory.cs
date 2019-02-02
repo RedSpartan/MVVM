@@ -27,23 +27,7 @@ namespace RedSpartan.Mvvm.Services
         #region IPageFactory Methods
         public Page CreateAndBindPage<TViewModel>(ViewType viewType = ViewType.Display) where TViewModel : BaseViewModel
         {
-            return CreateAndBindPage(typeof(TViewModel), null, viewType);
-        }
-
-        public Page CreateAndBindPage<TViewModel>(object parameter, ViewType viewType = ViewType.Display) where TViewModel : BaseViewModel
-        {
-            return CreateAndBindPage(typeof(TViewModel), null, viewType);
-        }
-
-        /// <summary>
-        /// Creates a page and binds a ViewModel
-        /// </summary>
-        /// <param name="viewModelType">ViewModel type to build</param>
-        /// <param name="viewType">Type of view to bind to</param>
-        /// <returns>A bound page</returns>
-        public Page CreateAndBindPage(Type viewModelType, ViewType viewType = ViewType.Display)
-        {
-            return CreateAndBindPage(viewModelType, null, viewType);
+            return CreateAndBindPage(typeof(TViewModel), viewType);
         }
 
         /// <summary>
@@ -53,7 +37,7 @@ namespace RedSpartan.Mvvm.Services
         /// <param name="parameter">object parameters to add to ViewModel</param>
         /// <param name="viewType">Type of view to bind to</param>
         /// <returns>A bound page</returns>
-        public Page CreateAndBindPage(Type viewModelType, object parameter, ViewType viewType = ViewType.Display)
+        public Page CreateAndBindPage(Type viewModelType, ViewType viewType = ViewType.Display)
         {
             Type pageType = GetPageTypeForViewModel(viewModelType, viewType);
 
@@ -114,7 +98,7 @@ namespace RedSpartan.Mvvm.Services
 
         public async Task<Page> CreateBindAndInitilisePageAsync<TViewModel>(object parameter, ViewType viewType = ViewType.Display) where TViewModel : BaseViewModel
         {
-            var page = CreateAndBindPage<TViewModel>(null, viewType);
+            var page = CreateAndBindPage<TViewModel>(viewType);
 
             await InitilisePage(page, parameter);
 

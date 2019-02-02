@@ -103,7 +103,7 @@ namespace RedSpartan.Mvvm.Services
         /// <returns></returns>
         public async Task NavigateToAsync(BaseViewModel from, Type viewModelType, object parameter, ViewType viewType = ViewType.Display, bool removePreviousPage = false)
         {
-            Page page = PageFactory.CreateAndBindPage(viewModelType, parameter, viewType);
+            Page page = PageFactory.CreateAndBindPage(viewModelType, viewType);
             
             Page remove = null;
 
@@ -140,7 +140,7 @@ namespace RedSpartan.Mvvm.Services
         /// <returns>Asynchronous Task</returns>
         public async Task PushModalAsync<TViewModel>(object parameter, ViewType viewType = ViewType.Display) where TViewModel : BaseViewModel
         {
-            Page page = PageFactory.CreateAndBindPage(typeof(TViewModel), parameter, viewType);
+            Page page = PageFactory.CreateAndBindPage(typeof(TViewModel), viewType);
 
             await CurrentApplication.MainPage.Navigation.PushModalAsync(page);
 

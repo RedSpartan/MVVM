@@ -1,4 +1,6 @@
 using RedSpartan.Mvvm.Services;
+using RedSpartan.Mvvm.Tests.ViewModels;
+using RedSpartan.Mvvm.Tests.Views;
 using System;
 using System.Collections.Generic;
 using Xunit;

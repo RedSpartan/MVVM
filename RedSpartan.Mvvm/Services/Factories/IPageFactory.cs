@@ -12,12 +12,7 @@ namespace RedSpartan.Mvvm.Services
         Page CreateAndBindPage<TViewModel>(ViewType viewType = ViewType.Display)
             where TViewModel : BaseViewModel;
 
-        Page CreateAndBindPage<TViewModel>(object parameter, ViewType viewType = ViewType.Display)
-            where TViewModel : BaseViewModel;
-
         Page CreateAndBindPage(Type viewModelType, ViewType viewType = ViewType.Display);
-
-        Page CreateAndBindPage(Type viewModelType, object parameter, ViewType viewType = ViewType.Display);
 
         Task<Page> CreateBindAndInitilisePageAsync<TViewModel>(ViewType viewType = ViewType.Display)
             where TViewModel : BaseViewModel;
