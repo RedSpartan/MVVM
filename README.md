@@ -12,4 +12,4 @@ __________________
 
 GNU General Public License more about that in the [LICENSE][1] file. 
 
-[1]: https://github.com/RedSpartan/MVVM/edit/master/LICENSE
+[1]: https://github.com/RedSpartan/MVVM/blob/master/LICENCE
