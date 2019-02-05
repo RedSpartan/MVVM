@@ -10,6 +10,7 @@ __________________
 **License**
 ======
 
-GNU General Public License more about that in the [LICENSE][1] file. 
+GNU General Public License more about that in the [LICENSE][1] or [FULLLICENCE][2]file. 
 
 [1]: https://github.com/RedSpartan/MVVM/blob/master/LICENCE
+[2]: https://github.com/RedSpartan/MVVM/blob/master/LICENCE.md
